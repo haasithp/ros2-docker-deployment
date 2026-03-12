@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  haasith_labs_sim:
+    build: .
+    container_name: ros2_humble_desktop
+    network_mode: host
+    stdin_open: true
+    tty: true
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      # Give the container full access to the NVIDIA drivers
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./src:/ros2_ws/src
+    # This block physically attaches your RTX 3050 to the container
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: bash -c "source /opt/ros/humble/setup.bash && bash"
